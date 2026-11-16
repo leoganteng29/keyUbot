@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Web C Key (login + buat key + add token) untuk ubot. Siap deploy di Vercel.",
-  "engines": { "node": ">=18.x" },
+  "engines": { "node": "22.x" },
   "scripts": {
     "dev": "vercel dev"
   }
