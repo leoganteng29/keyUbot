@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b0d12">
+<title>C Key Ubot</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0d12'/%3E%3Ccircle cx='24' cy='32' r='10' fill='none' stroke='%23f5b740' stroke-width='6'/%3E%3Cpath d='M34 32h22M48 32v9M56 32v7' stroke='%23f5b740' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d12; --panel:#12151c; --panel2:#171b24; --line:#232836; --text:#e8eaf0; --mute:#8a91a5;
+  --gold:#f5b740; --gold-d:#c8891a; --ok:#3ecf8e; --bad:#ff5d6c; --warn:#ffb020; --info:#6ea8ff;
+  --r:14px; --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace; --sans:"Space Grotesk",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f4f5f8;--panel:#fff;--panel2:#f0f2f7;--line:#dfe3ec;--text:#161a24;--mute:#667088;--gold:#b87708;--gold-d:#8f5a04;--ok:#12915b;--bad:#d4293d;--warn:#b86d00;--info:#2457c5}
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:
+  radial-gradient(900px 420px at 85% -10%, color-mix(in srgb,var(--gold) 12%,transparent), transparent 60%),
+  radial-gradient(700px 400px at -10% 110%, color-mix(in srgb,var(--info) 9%,transparent), transparent 60%), var(--bg)}
+button,input,select{font:inherit;color:inherit}
+.hidden{display:none!important}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+.mono{font-family:var(--mono)}
+
+/* ---------- login ---------- */
+#login{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.lcard{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:30px 26px;box-shadow:0 30px 80px -30px rgba(0,0,0,.6)}
+.logo{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--gold),var(--gold-d));color:#1a1203;margin-bottom:18px}
+.logo svg{width:28px;height:28px}
+h1{font-size:24px;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--mute);font-size:14px;margin:0 0 22px;line-height:1.5}
+label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
+.field{position:relative}
+input,select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 13px;font-size:15px;outline:none;transition:border-color .15s, box-shadow .15s}
+input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 22%,transparent)}
+.field input{padding-right:44px}
+.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--mute);padding:8px;cursor:pointer;border-radius:8px}
+.eye:hover{color:var(--text)}
+.hint{font-size:12px;color:var(--mute);margin-top:6px;line-height:1.45}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:12px 18px;font-weight:600;font-size:15px;cursor:pointer;transition:transform .08s, filter .15s, background .15s}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-gold{background:linear-gradient(145deg,var(--gold),var(--gold-d));color:#1a1203}
+.btn-gold:hover:not(:disabled){filter:brightness(1.08)}
+.btn-ghost{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+.btn-ghost:hover:not(:disabled){border-color:var(--mute)}
+.btn-danger{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 35%,transparent)}
+.btn-danger:hover:not(:disabled){background:color-mix(in srgb,var(--bad) 26%,transparent)}
+.btn-sm{padding:7px 11px;font-size:13px;border-radius:8px}
+.btn-block{width:100%;margin-top:20px}
+.err{color:var(--bad);font-size:13.5px;margin-top:14px;min-height:18px}
+
+/* ---------- app ---------- */
+header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0 18px}
+.brand{display:flex;align-items:center;gap:11px;flex:1;min-width:200px}
+.brand .logo{margin:0;width:40px;height:40px;border-radius:11px}
+.brand .logo svg{width:22px;height:22px}
+.brand b{display:block;font-size:16px;letter-spacing:-.01em}
+.brand span{font-size:12px;color:var(--mute)}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:6px}
+.b-role{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
+.b-none{background:var(--panel2);color:var(--mute)}
+.b-active{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.b-expired{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.b-revoked{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.b-prov{background:color-mix(in srgb,var(--info) 16%,transparent);color:var(--info)}
+
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:18px;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:none;border:0;border-radius:8px;padding:10px 15px;color:var(--mute);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab[aria-selected=true]{background:var(--panel2);color:var(--gold);box-shadow:inset 0 0 0 1px var(--line)}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card + .card{margin-top:16px}
+.card h2{font-size:17px;margin:0 0 4px;letter-spacing:-.01em}
+.card .sub{margin-bottom:16px}
+.grid{display:grid;gap:16px}
+@media(min-width:760px){.g2{grid-template-columns:1fr 1fr}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.stat small{display:block;color:var(--mute);font-size:12px;margin-bottom:6px}
+.stat b{font-size:24px;letter-spacing:-.02em}
+.bar{height:7px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-d));border-radius:99px;transition:width .4s}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.opt{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 15px;font-weight:600;font-size:14px;cursor:pointer}
+.opt[aria-pressed=true]{border-color:var(--gold);color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,var(--panel2))}
+.row{display:grid;gap:12px}
+@media(min-width:560px){.row.c2{grid-template-columns:1fr 1fr}}
+
+.result{margin-top:16px;border:1px dashed var(--gold);border-radius:12px;padding:16px;background:color-mix(in srgb,var(--gold) 7%,transparent)}
+.keybox{display:flex;gap:8px;align-items:center;margin:8px 0 10px}
+.keybox code{flex:1;font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:.02em;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px 12px;word-break:break-all;user-select:all}
+.warnline{font-size:12.5px;color:var(--warn)}
+
+.list{display:grid;gap:10px}
+.item{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.item .l{min-width:0;flex:1 1 220px}
+.item .t{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-weight:600;font-size:14.5px}
+.item .m{color:var(--mute);font-size:12.5px;margin-top:4px;word-break:break-word}
+.empty{text-align:center;color:var(--mute);padding:30px 10px;font-size:14px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:14px;margin-top:14px}
+.kv dt{color:var(--mute)} .kv dd{margin:0;word-break:break-word}
+
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);padding:12px 16px;border-radius:10px;font-size:14px;box-shadow:0 14px 40px -12px rgba(0,0,0,.6);transition:.25s;max-width:92vw;z-index:50}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.bad{border-left-color:var(--bad)}
+.foot{text-align:center;color:var(--mute);font-size:12px;margin-top:30px}
+.spin{width:15px;height:15px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<!-- ======================= LOGIN ======================= -->
+<section id="login" class="hidden">
+  <form class="lcard" id="loginForm" autocomplete="on">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v4M21 12v3"/></svg></div>
+    <h1>Masuk ke C Key</h1>
+    <p class="sub">Login pakai <b>username</b> dan <b>password</b> akun web. Minta lewat bot Telegram dengan perintah <span class="mono">/cweb</span>.</p>
+
+    <label for="u">Username</label>
+    <input id="u" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="username dari bot" required>
+    <div class="hint">Username akun web dari bot (bukan key ubot).</div>
+
+    <label for="p">Password</label>
+    <div class="field">
+      <input id="p" name="password" type="password" autocomplete="current-password" autocapitalize="characters" spellcheck="false" placeholder="WEB-XXXXX-XXXXX-XXXXX" required>
+      <button type="button" class="eye" id="eye" aria-label="Tampilkan password">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="err" id="lerr" role="alert"></div>
+    <button class="btn btn-gold btn-block" id="lbtn" type="submit">Masuk</button>
+  </form>
+</section>
+
+<!-- ======================= APP ======================= -->
+<main id="app" class="wrap hidden">
+  <header class="top">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v4M21 12v3"/></svg></div>
+      <div><b id="brand">C Key</b><span>Panel key ubot &amp; token</span></div>
+    </div>
+    <span class="chip"><span id="uname">-</span> <span class="badge b-none" id="rolebadge">-</span></span>
+    <button class="btn btn-ghost btn-sm" id="logout">Keluar</button>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-tab="ckey" aria-selected="true">C Key</button>
+    <button class="tab" role="tab" data-tab="mykeys" aria-selected="false">Key Saya</button>
+    <button class="tab" role="tab" data-tab="token" aria-selected="false">Add Token</button>
+    <button class="tab" role="tab" data-tab="check" aria-selected="false">Cek Key</button>
+    <button class="tab hidden" role="tab" data-tab="admin" id="tabAdmin" aria-selected="false">Admin</button>
+  </nav>
+
+  <!-- ---- C KEY ---- -->
+  <section data-pane="ckey">
+    <div class="stats" id="quotaStats"></div>
+    <div class="card" id="ckeyCard">
+      <h2>Buat C Key</h2>
+      <p class="sub">Key <span class="mono">LEOX</span> ini dipakai sebagai <b>password userbot Leo Brann</b> (bukan untuk login web).</p>
+      <label style="margin-top:0">Masa aktif</label>
+      <div class="chips" id="durChips">
+        <button class="opt" data-d="7" aria-pressed="false">7 Hari</button>
+        <button class="opt" data-d="30" aria-pressed="true">30 Hari</button>
+        <button class="opt" data-d="90" aria-pressed="false">90 Hari</button>
+        <button class="opt" data-d="0" aria-pressed="false">Permanen</button>
+        <button class="opt" data-d="custom" aria-pressed="false">Custom</button>
+      </div>
+      <div class="row c2">
+        <div id="customWrap" class="hidden"><label for="customDays">Jumlah hari</label><input id="customDays" type="number" min="1" max="9999" inputmode="numeric" placeholder="mis. 45"></div>
+        <div><label for="note">Catatan / nama pembeli <span style="text-transform:none;letter-spacing:0;font-weight:400">(opsional)</span></label><input id="note" maxlength="60" placeholder="mis. Budi / Toko A"></div>
+      </div>
+      <button class="btn btn-gold btn-block" id="genBtn">Generate Key</button>
+      <div class="result hidden" id="result">
+        <b>Key berhasil dibuat</b>
+        <div class="keybox"><code id="newKey"></code><button class="btn btn-ghost btn-sm" id="copyKey">Salin</button></div>
+        <dl class="kv" id="newMeta"></dl>
+        <div class="warnline" style="margin-top:12px">Key asli hanya tampil sekali. Simpan sekarang, tidak bisa dilihat lagi.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---- KEY SAYA ---- -->
+  <section data-pane="mykeys" class="hidden">
+    <div class="card">
+      <h2>Key Saya</h2>
+      <p class="sub">Key yang kamu buat. Key asli tidak disimpan, hanya 4 huruf terakhir sebagai petunjuk.</p>
+      <div class="list" id="keyList"><div class="empty">Memuat…</div></div>
+    </div>
+  </section>
+
+  <!-- ---- ADD TOKEN ---- -->
+  <section data-pane="token" class="hidden">
+    <div class="grid g2">
+      <div class="card">
+        <h2>Add Token</h2>
+        <p class="sub">Simpan token (Vercel, GitHub, bot Telegram, dll). Token diverifikasi ke provider lalu disimpan <b>terenkripsi</b>.</p>
+        <form id="tokForm" autocomplete="off">
+          <label for="tprov" style="margin-top:0">Provider</label>
+          <select id="tprov">
+            <option value="vercel">Vercel</option>
+            <option value="github">GitHub</option>
+            <option value="telegram">Bot Telegram</option>
+            <option value="other">Lainnya</option>
+          </select>
+          <label for="tlabel">Nama / label</label>
+          <input id="tlabel" maxlength="40" placeholder="mis. Vercel utama">
+          <label for="tval">Token</label>
+          <div class="field">
+            <input id="tval" type="password" autocomplete="off" spellcheck="false" placeholder="tempel token di sini" required>
+            <button type="button" class="eye" id="eye2" aria-label="Tampilkan token"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+          <div class="hint" id="tHint">Buat di vercel.com/account/tokens</div>
+          <button class="btn btn-gold btn-block" id="tokBtn" type="submit">Tambah Token</button>
+        </form>
+      </div>
+      <div class="card" style="margin-top:0">
+        <h2>Token Tersimpan</h2>
+        <p class="sub">Hanya kamu yang bisa melihat daftar ini. Nilai token disamarkan.</p>
+        <div class="list" id="tokList"><div class="empty">Memuat…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---- CEK KEY ---- -->
+  <section data-pane="check" class="hidden">
+    <div class="card">
+      <h2>Cek Key</h2>
+      <p class="sub">Cek status key (aktif / expired / revoked) tanpa menampilkan key-nya.</p>
+      <form id="chkForm">
+        <label for="ckin" style="margin-top:0">License key</label>
+        <input id="ckin" autocapitalize="characters" spellcheck="false" placeholder="LEOX-XXXXX-XXXXX-XXXXX-XXXXX" required>
+        <button class="btn btn-gold btn-block" type="submit">Cek</button>
+      </form>
+      <div id="chkOut"></div>
+    </div>
+  </section>
+
+  <!-- ---- ADMIN ---- -->
+  <section data-pane="admin" class="hidden">
+    <div class="stats" id="admStats"></div>
+    <div class="grid g2">
+      <div class="card">
+        <h2>Atur Role</h2>
+        <p class="sub">Role juga jadi izin <b>Buat Userbot</b> di ubot.</p>
+        <form id="roleForm">
+          <label for="rid" style="margin-top:0">ID Telegram</label>
+          <input id="rid" inputmode="numeric" pattern="\d{5,15}" placeholder="mis. 123456789" required>
+          <div class="row c2">
+            <div><label for="rrole">Role</label>
+              <select id="rrole"><option value="fullup">Full Up</option><option value="reseller">Reseller</option><option value="pt">PT</option><option value="admin">Admin</option><option value="developer">Developer</option></select></div>
+            <div><label for="rname">Nama</label><input id="rname" maxlength="40" placeholder="opsional"></div>
+          </div>
+          <button class="btn btn-gold btn-block" type="submit">Simpan Role</button>
+        </form>
+      </div>
+      <div class="card" style="margin-top:0" id="quotaCard">
+        <h2>Tambah Kuota</h2>
+        <p class="sub">Khusus Developer. Angka negatif = kurangi tambahan.</p>
+        <form id="quotaForm">
+          <label for="qid" style="margin-top:0">ID Telegram</label>
+          <input id="qid" inputmode="numeric" pattern="\d{5,15}" required>
+          <label for="qn">Jumlah</label>
+          <input id="qn" type="number" step="1" placeholder="mis. 5" required>
+          <button class="btn btn-gold btn-block" type="submit">Tambah Kuota</button>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Daftar Role</h2>
+      <div class="list" id="roleList"></div>
+    </div>
+  </section>
+
+  <div class="foot" id="foot"></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let ME = null, dur = 30, toastT;
+
+function toast(msg, bad) {
+  const t = $("#toast");
+  t.textContent = msg; t.className = "show" + (bad ? " bad" : "");
+  clearTimeout(toastT); toastT = setTimeout(() => (t.className = ""), 3200);
+}
+async function api(path, method = "GET", data) {
+  const opt = { method, headers: {}, credentials: "same-origin" };
+  if (method !== "GET") { opt.headers["Content-Type"] = "application/json"; opt.body = JSON.stringify(data || {}); }
+  let res, j;
+  try { res = await fetch("/api/" + path, opt); j = await res.json(); }
+  catch (_) { throw new Error("Tidak bisa terhubung ke server."); }
+  if (res.status === 401 && path !== "login") { showLogin(); throw new Error(j && j.error || "Sesi habis."); }
+  if (!j.ok) throw new Error(j.error || "Gagal.");
+  return j;
+}
+function busy(btn, on, label) {
+  if (on) { btn._t = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span>' + (label || ""); }
+  else { btn.disabled = false; btn.innerHTML = btn._t; }
+}
+const copy = async (text) => {
+  try { await navigator.clipboard.writeText(text); toast("Tersalin"); }
+  catch (_) { const r = document.createRange(); r.selectNodeContents($("#newKey")); getSelection().removeAllRanges(); getSelection().addRange(r); toast("Pilih & salin manual", true); }
+};
+
+/* ---------------- login ---------------- */
+function showLogin() {
+  ME = null;
+  $("#app").classList.add("hidden"); $("#login").classList.remove("hidden");
+  $("#p").value = ""; $("#lerr").textContent = "";
+}
+function showApp() { $("#login").classList.add("hidden"); $("#app").classList.remove("hidden"); }
+
+$("#eye").onclick = () => { const p = $("#p"); p.type = p.type === "password" ? "text" : "password"; };
+$("#eye2").onclick = () => { const p = $("#tval"); p.type = p.type === "password" ? "text" : "password"; };
+$("#loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const b = $("#lbtn"); $("#lerr").textContent = ""; busy(b, true, " Memeriksa…");
+  try { await api("login", "POST", { username: $("#u").value, password: $("#p").value }); await boot(); }
+  catch (er) { $("#lerr").textContent = er.message; }
+  finally { busy(b, false); }
+});
+$("#logout").onclick = async () => { try { await api("logout", "POST"); } catch (_) {} showLogin(); };
+
+/* ---------------- boot ---------------- */
+async function boot() {
+  let j;
+  try { j = await api("me"); } catch (_) { return showLogin(); }
+  ME = j;
+  document.title = (j.config.brand || "C Key") + " · Panel";
+  $("#brand").textContent = j.config.brand || "C Key";
+  $("#uname").textContent = j.user.username;
+  const rb = $("#rolebadge");
+  if (j.role) { rb.textContent = j.role.label; rb.className = "badge b-role"; }
+  else { rb.textContent = "Tanpa role"; rb.className = "badge b-none"; }
+  const isAdm = j.role && (j.role.key === "admin" || j.role.key === "developer");
+  $("#tabAdmin").classList.toggle("hidden", !isAdm);
+  $("#quotaCard").classList.toggle("hidden", !(j.role && j.role.key === "developer"));
+  $("#foot").textContent = `Akun web berlaku: ${j.user.key_expires}`;
+  dur = j.config.default_days === 0 ? 0 : [7, 30, 90].includes(j.config.default_days) ? j.config.default_days : 30;
+  $$("#durChips .opt").forEach((o) => o.setAttribute("aria-pressed", String(o.dataset.d === String(dur))));
+  renderQuota();
+  showApp();
+  openTab("ckey");
+}
+
+function renderQuota() {
+  const q = ME.quota, box = $("#quotaStats");
+  if (!ME.role) {
+    box.innerHTML = '<div class="stat" style="grid-column:1/-1"><small>Status akun</small><b style="font-size:16px">Akun member</b><div class="hint">Akun ini bisa Add Token &amp; Cek Key. Untuk membuat C Key, minta login web biasa lewat <span class="mono">/cweb</span> di bot (tanpa opsi member).</div></div>';
+    $("#ckeyCard").classList.add("hidden"); return;
+  }
+  $("#ckeyCard").classList.remove("hidden");
+  const lim = q.limit === null ? "Bebas" : q.limit;
+  const pct = q.limit ? Math.min(100, (q.used / q.limit) * 100) : 0;
+  box.innerHTML =
+    `<div class="stat"><small>Role</small><b>${esc(ME.role.label)}</b></div>` +
+    `<div class="stat"><small>Kuota terpakai</small><b>${q.used} / ${lim}</b>${q.limit ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ""}</div>` +
+    `<div class="stat"><small>Sisa kuota</small><b>${q.remaining === null ? "Bebas" : q.remaining}</b></div>` +
+    `<div class="stat"><small>Key aktif</small><b>${q.active}</b></div>`;
+}
+
+/* ---------------- tabs ---------------- */
+function openTab(name) {
+  $$("#tabs .tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.tab === name)));
+  $$("[data-pane]").forEach((p) => p.classList.toggle("hidden", p.dataset.pane !== name));
+  if (name === "mykeys") loadKeys();
+  if (name === "token") loadTokens();
+  if (name === "admin") loadAdmin();
+}
+$("#tabs").addEventListener("click", (e) => { const t = e.target.closest(".tab"); if (t) openTab(t.dataset.tab); });
+
+/* ---------------- c key ---------------- */
+$("#durChips").addEventListener("click", (e) => {
+  const o = e.target.closest(".opt"); if (!o) return;
+  $$("#durChips .opt").forEach((x) => x.setAttribute("aria-pressed", String(x === o)));
+  const c = o.dataset.d === "custom";
+  $("#customWrap").classList.toggle("hidden", !c);
+  dur = c ? "custom" : Number(o.dataset.d);
+  if (c) $("#customDays").focus();
+});
+$("#genBtn").onclick = async () => {
+  const days = dur === "custom" ? $("#customDays").value : dur;
+  if (dur === "custom" && !(Number($("#customDays").value) >= 1)) return toast("Isi jumlah hari custom", true);
+  const b = $("#genBtn"); busy(b, true, " Membuat…");
+  try {
+    const j = await api("keys", "POST", { days, note: $("#note").value });
+    const c = j.created;
+    $("#newKey").textContent = c.key;
+    $("#newMeta").innerHTML =
+      `<dt>ID key</dt><dd class="mono">${esc(c.id)}</dd><dt>Berlaku sampai</dt><dd>${esc(c.expires_label)}</dd><dt>Catatan</dt><dd>${esc(c.note || "-")}</dd>` +
+      `<dt>Dibuat oleh</dt><dd>${esc(c.owner_role)}</dd>`;
+    $("#result").classList.remove("hidden");
+    $("#note").value = "";
+    ME.quota.used = j.quota.used; ME.quota.limit = j.quota.limit;
+    ME.quota.remaining = j.quota.limit === null ? null : Math.max(0, j.quota.limit - j.quota.used);
+    ME.quota.active++;
+    renderQuota(); toast("Key dibuat");
+  } catch (er) { toast(er.message, true); }
+  finally { busy(b, false); }
+};
+$("#copyKey").onclick = () => copy($("#newKey").textContent);
+
+/* ---------------- key saya ---------------- */
+async function loadKeys() {
+  const L = $("#keyList");
+  try {
+    const j = await api("keys");
+    if (!j.keys.length) { L.innerHTML = '<div class="empty">Belum ada key. Buat di tab C Key.</div>'; return; }
+    const st = { active: "AKTIF", expired: "EXPIRED", revoked: "REVOKED" };
+    L.innerHTML = j.keys.map((k) => `
+      <div class="item">
+        <div class="l">
+          <div class="t"><span class="mono">${esc(k.id)}</span> <span class="badge b-${k.state}">${st[k.state]}</span><span class="mono" style="color:var(--mute);font-weight:400">…${esc(k.hint)}</span></div>
+          <div class="m">${k.note ? esc(k.note) + " · " : ""}Dibuat ${esc(k.created_label)} · Berlaku: ${esc(k.expires_label)}</div>
+        </div>
+        ${k.state === "revoked" ? "" : `<button class="btn btn-danger btn-sm" data-rev="${esc(k.id)}">Revoke</button>`}
+      </div>`).join("");
+  } catch (er) { L.innerHTML = `<div class="empty">${esc(er.message)}</div>`; }
+}
+$("#keyList").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-rev]"); if (!b) return;
+  if (!confirm(`Cabut key ${b.dataset.rev}? Ubot yang memakainya akan berhenti.`)) return;
+  try { await api("keys", "DELETE", { id: b.dataset.rev }); toast("Key di-revoke"); const m = await api("me"); ME = m; renderQuota(); loadKeys(); }
+  catch (er) { toast(er.message, true); }
+});
+
+/* ---------------- add token ---------------- */
+const HINTS = {
+  vercel: "Buat di vercel.com/account/tokens (sama seperti .setvtoken di ubot).",
+  github: "Buat di GitHub > Settings > Developer settings > Tokens.",
+  telegram: "Token dari @BotFather, format 123456789:AA…",
+  other: "Token apa saja. Tidak diverifikasi ke provider.",
+};
+$("#tprov").onchange = () => { $("#tHint").textContent = HINTS[$("#tprov").value]; };
+$("#tHint").textContent = HINTS.vercel;
+
+async function loadTokens() {
+  const L = $("#tokList");
+  try {
+    const j = await api("tokens");
+    if (!j.tokens.length) { L.innerHTML = '<div class="empty">Belum ada token.</div>'; return; }
+    L.innerHTML = j.tokens.map((t) => `
+      <div class="item">
+        <div class="l">
+          <div class="t">${esc(t.label)} <span class="badge b-prov">${esc(t.provider_label)}</span></div>
+          <div class="m"><span class="mono">${esc(t.hint)}</span>${t.account ? " · " + esc(t.account) : ""} · ${esc(t.created_label)}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" data-del="${esc(t.id)}">Hapus</button>
+      </div>`).join("");
+  } catch (er) { L.innerHTML = `<div class="empty">${esc(er.message)}</div>`; }
+}
+$("#tokForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const b = $("#tokBtn"); busy(b, true, " Memverifikasi…");
+  try {
+    const j = await api("tokens", "POST", { provider: $("#tprov").value, label: $("#tlabel").value, token: $("#tval").value });
+    $("#tval").value = ""; $("#tlabel").value = "";
+    toast("Token ditambahkan" + (j.token.account ? " (" + j.token.account + ")" : "")); loadTokens();
+  } catch (er) { toast(er.message, true); }
+  finally { busy(b, false); }
+});
+$("#tokList").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-del]"); if (!b) return;
+  if (!confirm("Hapus token ini?")) return;
+  try { await api("tokens", "DELETE", { id: b.dataset.del }); toast("Token dihapus"); loadTokens(); }
+  catch (er) { toast(er.message, true); }
+});
+
+/* ---------------- cek key ---------------- */
+$("#chkForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const out = $("#chkOut"), b = e.submitter || $("#chkForm button");
+  busy(b, true, " Mengecek…");
+  try {
+    const { key: k } = await api("keys", "POST", { action: "check", key: $("#ckin").value });
+    const st = { active: "AKTIF", expired: "EXPIRED", revoked: "REVOKED" };
+    out.innerHTML = `<dl class="kv"><dt>Status</dt><dd><span class="badge b-${k.state}">${st[k.state]}</span></dd><dt>ID key</dt><dd class="mono">${esc(k.id)}</dd><dt>Berlaku sampai</dt><dd>${esc(k.expires_label)}</dd><dt>Dibuat oleh</dt><dd>${esc(k.owner_role)} (<span class="mono">${esc(k.owner_id)}</span>)</dd><dt>Dibuat</dt><dd>${esc(k.created_label)}</dd><dt>Catatan</dt><dd>${esc(k.note || "-")}</dd></dl>`;
+  } catch (er) { out.innerHTML = `<div class="err">${esc(er.message)}</div>`; }
+  finally { busy(b, false); }
+});
+
+/* ---------------- admin ---------------- */
+async function loadAdmin() {
+  try {
+    const j = await api("admin");
+    const s = j.stats;
+    $("#admStats").innerHTML = [["Total key", s.total], ["Aktif", s.active], ["Expired", s.expired], ["Revoked", s.revoked], ["User ber-role", s.roles], ["Login web aktif", s.webs]].map(([a, b]) => `<div class="stat"><small>${a}</small><b>${b}</b></div>`).join("");
+    $("#roleList").innerHTML = j.roles.length ? j.roles.map((r) => `
+      <div class="item"><div class="l"><div class="t"><span class="mono">${esc(r.id)}</span> ${esc(r.name)} <span class="badge b-role">${esc(r.role_label)}</span></div>
+      <div class="m">Key: ${r.used} / ${r.limit === null ? "Bebas" : r.limit}${r.extra_quota ? " · tambahan " + r.extra_quota : ""}</div></div>
+      <button class="btn btn-danger btn-sm" data-delrole="${esc(r.id)}">Hapus</button></div>`).join("") : '<div class="empty">Belum ada role.</div>';
+  } catch (er) { $("#roleList").innerHTML = `<div class="empty">${esc(er.message)}</div>`; }
+}
+$("#roleForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try { const j = await api("admin", "POST", { action: "addrole", id: $("#rid").value, role: $("#rrole").value, name: $("#rname").value }); toast(j.done); $("#roleForm").reset(); loadAdmin(); }
+  catch (er) { toast(er.message, true); }
+});
+$("#quotaForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try { const j = await api("admin", "POST", { action: "addquota", id: $("#qid").value, amount: Number($("#qn").value) }); toast(j.done); $("#quotaForm").reset(); loadAdmin(); }
+  catch (er) { toast(er.message, true); }
+});
+$("#roleList").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-delrole]"); if (!b) return;
+  if (!confirm("Hapus role " + b.dataset.delrole + "?")) return;
+  const revoke = confirm("Sekaligus cabut SEMUA key milik user ini?\n\nOK = cabut semua key\nBatal = hapus role saja");
+  try { const j = await api("admin", "POST", { action: "delrole", id: b.dataset.delrole, revoke }); toast(j.done); loadAdmin(); }
+  catch (er) { toast(er.message, true); }
+});
+
+boot();
+</script>
+</body>
+</html>
