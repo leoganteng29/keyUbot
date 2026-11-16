@@ -306,8 +306,14 @@ async function api(path, method = "GET", data) {
   const opt = { method, headers: {}, credentials: "same-origin" };
   if (method !== "GET") { opt.headers["Content-Type"] = "application/json"; opt.body = JSON.stringify(data || {}); }
   let res, j;
-  try { res = await fetch("/api/" + path, opt); j = await res.json(); }
-  catch (_) { throw new Error("Tidak bisa terhubung ke server."); }
+  try { res = await fetch("/api/" + path, opt); }
+  catch (_) { throw new Error("Tidak bisa terhubung ke server. Cek koneksi internet kamu."); }
+  try { j = await res.json(); }
+  catch (_) {
+    throw new Error(res.status === 404
+      ? "Server API tidak ditemukan (404). Folder api/ belum ikut ter-deploy di Vercel, deploy ulang dari root project."
+      : "Server membalas error (HTTP " + res.status + "). Buka /api/health untuk cek konfigurasi, atau lihat Vercel > Logs.");
+  }
   if (res.status === 401 && path !== "login") { showLogin(); throw new Error(j && j.error || "Sesi habis."); }
   if (!j.ok) throw new Error(j.error || "Gagal.");
   return j;
